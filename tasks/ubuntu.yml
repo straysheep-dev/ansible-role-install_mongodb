@@ -1,0 +1,83 @@
+# SPDX-License-Identifier: MIT
+---
+# install_mongodb/tasks/ubuntu.yml
+
+# This task file follows the instructions here:
+# https://www.mongodb.com/docs/manual/tutorial/install-mongodb-on-ubuntu/
+
+- name: Install dependancies
+  ansible.builtin.apt:
+    pkg:
+      - gnupg
+      - curl
+    update_cache: true
+    cache_valid_time: 3600
+    state: present
+  become: true
+  become_method: ansible.builtin.sudo
+
+- name: Download the MongoDB signing key
+  ansible.builtin.get_url:
+    url: https://www.mongodb.org/static/pgp/server-8.0.asc
+    dest: /tmp/mongodb-server-8.0.asc
+    mode: "0600"
+
+# This task will halt execution of the playbook if the key does not match the known fingerprint
+- name: Verify MongoDB key fingerprint
+  ansible.builtin.shell: |
+    set -o pipefail
+    gpg --no-keyring /tmp/mongodb-server-8.0.asc | grep -P "4B07\s?52C1\s?BCA2\s?38C0\s?B4EE\s?\s?14DC\s?41DE\s?058A\s?4E7D\s?CA05"
+  args:
+    executable: /bin/bash
+
+# Another note from the Google install instructions:
+#   "NOTE: On systems with older versions of apt (i.e. versions prior to 1.4), the ASCII-armored format public
+#          key must be converted to binary format before it can be used by apt."
+# This includes OS's earlier than Ubuntu 18.04 and Debian 10, which aren't supported right now by this role
+
+- name: Convert ASCII-armored key to binary format
+  ansible.builtin.command: gpg -o /tmp/mongodb-server-8.0.gpg --dearmor /tmp/mongodb-server-8.0.asc
+
+- name: Copy MongoDB signing key into trusted keys folder
+  ansible.builtin.copy:
+    remote_src: true
+    src: /tmp/mongodb-server-8.0.gpg
+    dest: /usr/share/keyrings/
+    owner: root
+    group: root
+    mode: "0644"
+  become: true
+  become_method: ansible.builtin.sudo
+
+- name: Clean up temporary binary key
+  ansible.builtin.file:
+    path: /tmp/mongodb-server-8.0.gpg
+    state: absent
+
+- name: Add the MongoDB repository
+  ansible.builtin.apt_repository:
+    repo: "deb [ arch=amd64,arm64 signed-by=/usr/share/keyrings/mongodb-server-8.0.gpg ] https://repo.mongodb.org/apt/ubuntu {{ ansible_distribution_release }}/mongodb-org/8.0 multiverse"
+    filename: mongodb-org-8.0
+    update_cache: true
+    state: present
+    mode: "0644"
+  become: true
+  become_method: ansible.builtin.sudo
+
+- name: Install the MongoDB server package
+  ansible.builtin.apt:
+    pkg:
+      - "{{ mongodb_package }}"
+    update_cache: true
+    cache_valid_time: 3600
+    state: present
+  become: true
+  become_method: ansible.builtin.sudo
+
+- name: Ensure the service is running
+  ansible.builtin.service:
+    name: mongod
+    state: started
+    enabled: true
+  become: true
+  become_method: ansible.builtin.sudo

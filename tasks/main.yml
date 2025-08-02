@@ -1,0 +1,7 @@
+# SPDX-License-Identifier: MIT
+---
+# tasks file for install_mongodb
+
+- name: Include Ubuntu tasks
+  include_tasks: ubuntu.yml
+  when: "ansible_distribution == 'Ubuntu'"
