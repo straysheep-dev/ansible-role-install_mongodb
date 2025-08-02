@@ -1,6 +1,8 @@
 install_mongodb
 =========
 
+![ansible-lint workflow](https://github.com/straysheep-dev/ansible-role-install_mongodb/actions/workflows/ansible-lint.yml/badge.svg)
+
 Installs MongoDB Community Edition following the instructions [here](https://www.mongodb.com/docs/manual/tutorial/install-mongodb-on-ubuntu/).
 
 Requirements
