@@ -3,14 +3,14 @@ install_mongodb
 
 ![ansible-lint workflow](https://github.com/straysheep-dev/ansible-role-install_mongodb/actions/workflows/ansible-lint.yml/badge.svg)
 
-Installs MongoDB Community Edition following the instructions [here](https://www.mongodb.com/docs/manual/tutorial/install-mongodb-on-ubuntu/).
+Installs MongoDB Community Edition following the [official instructions](https://www.mongodb.com/docs/manual/tutorial/install-mongodb-on-ubuntu/).
 
 Requirements
 ------------
 
-Currently only Ubuntu is supported, though the task files are structure to expand this role to cover more systems in the future.
+Currently only Ubuntu is supported. The task files are structured so that support for additional systems can be added in the future.
 
-Any requirements are detailed in the [official documentation](https://www.mongodb.com/docs/manual/installation/).
+Any other requirements are detailed here: [https://www.mongodb.com/docs/manual/installation/](https://www.mongodb.com/docs/manual/installation/).
 
 Role Variables
 --------------
@@ -21,7 +21,9 @@ Role Variables
 mongodb_package: "mongodb-org"
 ```
 
-This should be updated to support [installing specific verisons](https://www.mongodb.com/docs/manual/tutorial/install-mongodb-on-ubuntu/#install-mongodb-community-server.), which requires specifying the version you need for each component, and finally pinning the packages to prevent them from updating:
+This should be updated to support [installing specific verisons](https://www.mongodb.com/docs/manual/tutorial/install-mongodb-on-ubuntu/#install-mongodb-community-server.).
+
+To do this, each component needs installed with the same version string, and finally each package needs pinned to prevent them from updating:
 
 > ```bash
 > sudo apt-get install -y \

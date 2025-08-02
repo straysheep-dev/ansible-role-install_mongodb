@@ -5,7 +5,7 @@
 # This task file follows the instructions here:
 # https://www.mongodb.com/docs/manual/tutorial/install-mongodb-on-ubuntu/
 
-- name: Install dependancies
+- name: Install dependencies
   ansible.builtin.apt:
     pkg:
       - gnupg
@@ -71,6 +71,12 @@
     update_cache: true
     cache_valid_time: 3600
     state: present
+  become: true
+  become_method: ansible.builtin.sudo
+
+- name: Force systemd to reread configs
+  ansible.builtin.systemd_service:
+    daemon_reload: true
   become: true
   become_method: ansible.builtin.sudo
 
