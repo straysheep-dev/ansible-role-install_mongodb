@@ -12,6 +12,15 @@ Currently only Ubuntu is supported. The task files are structured so that suppor
 
 Any other requirements are detailed here: [https://www.mongodb.com/docs/manual/installation/](https://www.mongodb.com/docs/manual/installation/).
 
+> [!IMPORTANT]
+> If this VM runs in Proxmox you must use the `host` CPU type ([or one that supports AVX](https://pve.proxmox.com/pve-docs/pve-admin-guide.html#_qemu_cpu_types)), not `x86-64-v2-AES`. MongoDB requires this instruction set to run, otherwise you'll get `code=dumped, signal=ILL` in the service status.
+>
+> - [MongoDB 8.0 Compatability Issue](https://www.mongodb.com/community/forums/t/mongodb-8-0-compatibility-issue/299704)
+> - [MongoDB Platform Support Notes](https://www.mongodb.com/docs/manual/administration/production-notes/#platform-support-notes)
+> - [MongoDB code=dumped, signal=ILL](https://www.mongodb.com/community/forums/t/i-cannot-install-mongodb-on-ubuntu-22-04-2-live-server-code-dumped-signal-ill/224111)
+> - [Proxmox Forum: Enable AVX](https://forum.proxmox.com/threads/enable-avx.129019/)
+> - [Proxmox Docs: QEMU CPU Types](https://pve.proxmox.com/pve-docs/pve-admin-guide.html#_qemu_cpu_types)
+
 Role Variables
 --------------
 
