@@ -11,16 +11,22 @@
       - gnupg
       - curl
     update_cache: true
-    cache_valid_time: 3600
+    # cache_valid_time: 3600
     state: present
   become: true
   become_method: ansible.builtin.sudo
+
+- name: Check if MongoDB signing key is already installed
+  ansible.builtin.stat:
+    path: /usr/share/keyrings/mongodb-server-8.0.gpg
+  register: mongodb_key
 
 - name: Download the MongoDB signing key
   ansible.builtin.get_url:
     url: https://www.mongodb.org/static/pgp/server-8.0.asc
     dest: /tmp/mongodb-server-8.0.asc
     mode: "0600"
+  when: not mongodb_key.stat.exists
 
 # This task will halt execution of the playbook if the key does not match the known fingerprint
 - name: Verify MongoDB key fingerprint
@@ -29,6 +35,7 @@
     gpg --no-keyring /tmp/mongodb-server-8.0.asc | grep -P "4B07\s?52C1\s?BCA2\s?38C0\s?B4EE\s?\s?14DC\s?41DE\s?058A\s?4E7D\s?CA05"
   args:
     executable: /bin/bash
+  when: not mongodb_key.stat.exists
 
 # Another note from the Google install instructions:
 #   "NOTE: On systems with older versions of apt (i.e. versions prior to 1.4), the ASCII-armored format public
@@ -37,6 +44,7 @@
 
 - name: Convert ASCII-armored key to binary format
   ansible.builtin.command: gpg -o /tmp/mongodb-server-8.0.gpg --dearmor /tmp/mongodb-server-8.0.asc
+  when: not mongodb_key.stat.exists
 
 - name: Copy MongoDB signing key into trusted keys folder
   ansible.builtin.copy:
@@ -46,6 +54,7 @@
     owner: root
     group: root
     mode: "0644"
+  when: not mongodb_key.stat.exists
   become: true
   become_method: ansible.builtin.sudo
 
@@ -53,6 +62,8 @@
   ansible.builtin.file:
     path: /tmp/mongodb-server-8.0.gpg
     state: absent
+  when: not mongodb_key.stat.exists
+
 
 - name: Add the MongoDB repository
   ansible.builtin.apt_repository:
